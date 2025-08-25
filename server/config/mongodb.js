@@ -6,7 +6,7 @@ const mongodb = async () => {
         console.log("MongoDB connected");
     });
 
-    await mongoose.connect(`${process.env.MONGODB_URL}/bg-removal`);
+    await mongoose.connect(`${process.env.MONGODB_URI}/bg-removal`);
 }
 
 export default mongodb;
