@@ -14,7 +14,7 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.send('API Working!');
 });
-app.use('/api/users', userRouter);
+app.use('/api/user', userRouter);
 
 
 app.listen(PORT, () => {
