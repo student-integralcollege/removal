@@ -5,16 +5,19 @@ import Result from './pages/Result'
 import Buycredit from './pages/Buycredit'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
+import { AppContextProvider } from './context/AppContext'
 
 const App = () => {
   return (
     <div className='min-h-screen bg-slate-50'>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/result" element={<Result />} />
-        <Route path="/buy" element={<Buycredit />} />
-      </Routes>
+      <AppContextProvider>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/result" element={<Result />} />
+          <Route path="/buy" element={<Buycredit />} />
+        </Routes>
+      </AppContextProvider>
       <Footer />
     </div>
   )

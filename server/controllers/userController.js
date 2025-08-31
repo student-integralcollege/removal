@@ -55,4 +55,18 @@ const clerkwebhook = async (req, res) => {
     }
 }
 
-export { clerkwebhook };
+const userCredits = async (req, res) => {
+    try {
+        const { clerkId } = req.body;
+        const userdata = await userModel.findOne({ clerkId });
+        if (!userdata) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+        res.json({ success: true, creditBalance: userdata.creditBalance });
+    } catch (error) {
+        console.error("Error fetching user credits:", error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+};
+
+export { clerkwebhook, userCredits };
