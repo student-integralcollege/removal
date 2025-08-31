@@ -22,13 +22,13 @@ const AppContextProvider = ({ children }) => {
         try {
             const token = await getToken();
 
-            const { data } = await axios.get(`${backendUrl}/api/users/credits`, {
+            const { data } = await axios.get(backendUrl+`/api/users/credits`, {
                 headers: {
                     token: token
                 }
             });
             if (data.success) {
-                setCredit(data.creditBalance);
+                setCredit(data.credits);
             }
         } catch (error) {
             console.error("Error loading credits:", error);

@@ -5,19 +5,18 @@ import Result from './pages/Result'
 import Buycredit from './pages/Buycredit'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
-import { AppContextProvider } from './context/AppContext'
+import { ToastContainer } from 'react-toastify'
 
 const App = () => {
   return (
     <div className='min-h-screen bg-slate-50'>
-      <AppContextProvider>
+      <ToastContainer position='bottom-right' />
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/result" element={<Result />} />
           <Route path="/buy" element={<Buycredit />} />
         </Routes>
-      </AppContextProvider>
       <Footer />
     </div>
   )

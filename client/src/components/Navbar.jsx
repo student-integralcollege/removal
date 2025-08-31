@@ -2,13 +2,15 @@ import React, { useContext } from 'react'
 import { assets } from '../assets/assets'
 import { Link } from 'react-router-dom'
 import { useClerk, UserButton, useUser } from '@clerk/clerk-react'
+import { AppContext } from '../context/AppContext'
+import { useEffect } from 'react'
 
 const Navbar = () => {
   const { openSignIn } = useClerk();
   const { isSignedIn, user } = useUser();
-  // Placeholder for user's credit value
-  const credit = 0;
+  const { credit, loadCredits } = useContext(AppContext);
 
+   useEffect
   return (
     <div className='flex items-center justify-between mx-4 py-3 lg:mx-44'>
       <Link to="/"><img className='w-32 sm:w-44' src={assets.logo} alt="" /></Link>
@@ -19,7 +21,7 @@ const Navbar = () => {
               <img className='w-5' src={assets.credit_icon} alt="" />
               <p className='text-xs sm:text-sm font-medium text-gray-600'>Credits: {credit}</p>
             </button>
-            <p className='max-sm:hidden text-gray-600'>Hi, {user.firstName}</p>
+            <p className='max-sm:hidden text-gray-600'>Hi, {user.fullName}</p>
             <UserButton />
           </div>
           : <button onClick={() => openSignIn({})} className='bg-zinc-800 text-white flex items-center gap-4 px-4 py-2 sm:px-8 sm:py-3 text-sm rounded-full'>
