@@ -22,7 +22,7 @@ const AppContextProvider = ({ children }) => {
         try {
             const token = await getToken();
 
-            const { data } = await axios.get(backendUrl+`/api/users/credits`, {
+            const { data } = await axios.get(backendUrl + `/api/users/credits`, {
                 headers: {
                     token: token
                 }
@@ -37,7 +37,7 @@ const AppContextProvider = ({ children }) => {
     };
 
     const remove_bg = async (image) => {
-        try { 
+        try {
             if (!isSignedIn) {
                 return openSignIn();
             }
@@ -50,13 +50,13 @@ const AppContextProvider = ({ children }) => {
             const formData = new FormData();
             image && formData.append('image', image);
 
-            const { data } = await axios.post(backendUrl+'/api/image/remove-bg', formData, {
-                headers: { token },
+            const { data } = await axios.post(backendUrl + "/api/image/remove-bg", formData, {
+                headers: { Authorization: `Bearer ${token}` },
             });
 
             if (data.success) {
                 setResultImage(data.resultimage);
-                data.creditBalance && setCredit(data.creditBalance);
+                if (typeof data.creditBalance === 'number') setCredit(data.creditBalance);
             } else {
                 toast.error(data.message);
                 data.creditBalance && setCredit(data.creditBalance);
