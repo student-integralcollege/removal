@@ -38,7 +38,9 @@ const removeBackground = async (req, res) => {
 
         res.json({
             success: true,
-            data: resultimage
+            resultimage,
+            creditBalance: user.creditBalance - 1,
+            message: "Background removed successfully",
         });
 
     } catch (error) {

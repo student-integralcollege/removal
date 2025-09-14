@@ -6,16 +6,15 @@ const authUser = (req, res, next) => {
   try {
     // Get token from 'authorization' header (Bearer <token>)
     const authHeader = req.headers['authorization'];
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!authHeader || !authHeader.startsWith('Bearer')) {
+      
       return res.status(401).json({ success: false, message: "No token provided" });
     }
     const token = authHeader.split(' ')[1];
 
     // Verify token (replace 'your_jwt_secret' with your actual secret if needed)
     const decodedToken = jwt.decode(token);
-    // If you want to verify signature, use jwt.verify(token, secret)
-    // const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-
+    
     if (!decodedToken || !decodedToken.clerkId) {
       return res.status(401).json({ success: false, message: "Invalid token or missing clerkId" });
     }

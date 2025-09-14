@@ -49,18 +49,17 @@ const AppContextProvider = ({ children }) => {
             const token = await getToken();
             const formData = new FormData();
             image && formData.append('image', image);
-            const { data } = await axios.post(`${backendUrl}/api/image/remove-bg`, formData, {
+
+            const { data } = await axios.post(backendUrl+'/api/image/remove-bg', formData, {
                 headers: { token },
             });
+
             if (data.success) {
-                setResultImage(data.data);
-                // Optimistically decrement credit and sync later if needed
-                setCredit((prev) => Math.max(0, (prev || 0) - 1));
+                setResultImage(data.resultimage);
+                data.creditBalance && setCredit(data.creditBalance);
             } else {
                 toast.error(data.message);
-                if (typeof data.creditBalance === 'number') {
-                    setCredit(data.creditBalance);
-                }
+                data.creditBalance && setCredit(data.creditBalance);
                 if (data.creditBalance === 0) {
                     navigate('/buy-credits');
                 }
@@ -75,8 +74,8 @@ const AppContextProvider = ({ children }) => {
         credit, setCredit,
         loadCredits,
         backendUrl,
-        remove_bg,
         image, setImage,
+        remove_bg,
         resultImage, setResultImage
     };
 
