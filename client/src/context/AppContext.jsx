@@ -61,7 +61,7 @@ const AppContextProvider = ({ children }) => {
                 toast.error(data.message);
                 data.creditBalance && setCredit(data.creditBalance);
                 if (data.creditBalance === 0) {
-                    navigate('/buy-credits');
+                    navigate('/buy');
                 }
             }
         } catch (error) {

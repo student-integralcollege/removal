@@ -4,7 +4,7 @@ import { AppContext } from '../context/AppContext'
 
 const Result = () => {
 
-const { image, resultImage } = useContext(AppContext);
+  const { resultImage, image } = useContext(AppContext);
 
   return (
     <div className='mx-4 my-3 lg:mx-44 mt-14 min-h-[75vh]'>
@@ -22,23 +22,22 @@ const { image, resultImage } = useContext(AppContext);
           {/* right side */}
           <div className='flex flex-col'>
             <p className='font-semibold text-gray-600 mb-2'>Background Removed</p>
-            <div className='rounded-md border border-gray-300 relative bg-layer overflow-hidden'>
-                <img className='w-full h-full object-contain' src={assets.image_wo_bg} alt="Result" />
-
-                  <div className='absolute right-1/2 bottom-1/2 transform translate-x-1/2 translate-y-1/2 items-center justify-center'>
-                    <div className='border-4 border-violet-600 rounded-full h-12 w-12 border-t-transparent animate-spin'></div>
+            <div className='rounded-md border border-gray-300 min-h-[260px] sm:min-h-[320px] relative bg-layer overflow-hidden'>
+              {resultImage && <img src={resultImage} alt="Result" className="max-h-80 w-auto mx-auto" />}
+              {
+                !resultImage && image && <div className='absolute inset-0 flex items-center justify-center'>
+                    <div className='border border-violet-600 rounded-full h-12 w-12 border-t-transparent animate-spin'></div>
                   </div>
-
+              }
             </div>
           </div>
         </div>
 
-        {/* button */}
-          <div className='flex justify-center sm:justify-end items-center flex-wrap gap-3 sm:gap-4 mt-6'>
-            <button className='px-8 py-2.5 text-violet-600 text-sm border border-violet-600 rounded-full hover:scale-105 transition-all duration-700'>Try another image</button>
-            <a href='' className='px-8 py-2.5 text-white text-sm bg-gradient-to-r from-violet-600 to-fuchsia-500 rounded-full hover:scale-105 transition-all duration-700'>Download image</a>
-          </div>
-        
+        {/* buttons */}
+          {resultImage && <div className='flex justify-center sm:justify-end items-center flex-wrap gap-3 sm:gap-4 mt-6'>
+            <button className='px-6 sm:px-8 py-2.5 text-violet-600 text-sm border border-violet-600 rounded-full hover:scale-105 transition-all duration-700'>Try another image</button>
+            <a href={resultImage} download className={`px-6 sm:px-8 py-2.5 text-white text-sm bg-gradient-to-r from-violet-600 to-fuchsia-500 rounded-full hover:scale-105 transition-all duration-700`}>Download image</a>
+          </div>}
       </div>
     </div>
   )
