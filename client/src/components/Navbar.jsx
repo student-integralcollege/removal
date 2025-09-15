@@ -8,7 +8,7 @@ const Navbar = () => {
 
   const { openSignIn } = useClerk();
   const { isSignedIn, user } = useUser();
-  const { credit, loadCredits } = useContext(AppContext);
+  const { credit, loadCredits, setCredit } = useContext(AppContext);
   const navigate = useNavigate();
 
    useEffect(() => {
@@ -16,6 +16,14 @@ const Navbar = () => {
        loadCredits();
      }
    }, [isSignedIn]);
+
+  const handleSuccess = (data) => {
+    if (data.success) {
+      setResultImage(data.resultimage);
+      if (typeof data.creditBalance === 'number') setCredit(data.creditBalance);
+      loadCredits(); // This will fetch the latest credits from the backend
+    }
+  }
 
   return (
     <div className='flex items-center justify-between mx-4 py-3 lg:mx-44'>

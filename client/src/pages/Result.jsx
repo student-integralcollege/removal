@@ -1,10 +1,29 @@
-import React, { useContext } from 'react'
-import { assets } from '../assets/assets'
-import { AppContext } from '../context/AppContext'
+import React, { useContext, useMemo, useEffect } from 'react';
+import { AppContext } from '../context/AppContext';
+import { useNavigate } from 'react-router-dom';
 
 const Result = () => {
+  const { resultImage, image, setImage, setResultImage } = useContext(AppContext);
+  const navigate = useNavigate();
 
-  const { resultImage, image } = useContext(AppContext);
+  // Create a safe object URL for previewing the uploaded image
+  const objectUrl = useMemo(() => {
+    return image ? URL.createObjectURL(image) : '';
+  }, [image]);
+
+  // Cleanup the object URL on unmount or when image changes
+  useEffect(() => {
+    return () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [objectUrl]);
+
+  // Reset state and navigate back to upload page
+  const handleTryAnother = () => {
+    setImage(null);
+    setResultImage(null);
+    navigate('/');
+  };
 
   return (
     <div className='mx-4 my-3 lg:mx-44 mt-14 min-h-[75vh]'>
@@ -16,14 +35,24 @@ const Result = () => {
           {/* left side */}
           <div>
             <p className='font-semibold text-gray-600 mb-2'>Original</p>
-            <img className='rounded-md border w-full object-contain' src={image ? URL.createObjectURL(image) : ''} alt="" />
+            <img
+              className='rounded-md border w-full object-contain'
+              src={objectUrl}
+              alt="Original"
+            />
           </div>
 
           {/* right side */}
           <div className='flex flex-col'>
             <p className='font-semibold text-gray-600 mb-2'>Background Removed</p>
             <div className='rounded-md border border-gray-300 min-h-[260px] sm:min-h-[320px] relative bg-layer overflow-hidden'>
-              <img src={resultImage ? resultImage : ''} alt="" />
+              {resultImage && (
+                <img
+                  src={resultImage}
+                  alt="Result"
+                  className="w-full h-full object-contain"
+                />
+              )}
               {!resultImage && image && (
                 <div className='absolute inset-0 flex items-center justify-center'>
                   <div className='border border-violet-600 rounded-full h-12 w-12 border-t-transparent animate-spin'></div>
@@ -34,13 +63,26 @@ const Result = () => {
         </div>
 
         {/* buttons */}
-        {resultImage && <div className='flex justify-center sm:justify-end items-center flex-wrap gap-3 sm:gap-4 mt-6'>
-          <button className='px-6 sm:px-8 py-2.5 text-violet-600 text-sm border border-violet-600 rounded-full hover:scale-105 transition-all duration-700'>Try another image</button>
-          <a href={resultImage} download className={`px-6 sm:px-8 py-2.5 text-white text-sm bg-gradient-to-r from-violet-600 to-fuchsia-500 rounded-full hover:scale-105 transition-all duration-700`}>Download image</a>
-        </div>}
+        {resultImage && (
+          <div className='flex justify-center sm:justify-end items-center flex-wrap gap-3 sm:gap-4 mt-6'>
+            <button
+              onClick={handleTryAnother}
+              className='px-6 sm:px-8 py-2.5 text-violet-600 text-sm border border-violet-600 rounded-full hover:scale-105 transition-all duration-700'
+            >
+              Try another image
+            </button>
+            <a
+              href={resultImage}
+              download
+              className='px-6 sm:px-8 py-2.5 text-white text-sm bg-gradient-to-r from-violet-600 to-fuchsia-500 rounded-full hover:scale-105 transition-all duration-700'
+            >
+              Download image
+            </a>
+          </div>
+        )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Result;

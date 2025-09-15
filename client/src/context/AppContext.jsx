@@ -18,65 +18,69 @@ const AppContextProvider = ({ children }) => {
     const { isSignedIn } = useUser();
     const { openSignIn } = useClerk();
 
+    // Fetch user credits
     const loadCredits = async () => {
         try {
             const token = await getToken();
-
-            const { data } = await axios.get(backendUrl + `/api/users/credits`, {
-                headers: {
-                    token: token
-                }
+            const { data } = await axios.get(`${backendUrl}/api/user/credits`, {
+                headers: { Authorization: `Bearer ${token}` }
             });
+
             if (data.success) {
                 setCredit(data.credits);
             }
         } catch (error) {
-            console.error("Error loading credits:", error);
-            toast.error(error.message);
+            console.error('Error loading credits:', error);
+            toast.error(error.response?.data?.message || error.message);
         }
     };
 
+    // Remove background from image
     const remove_bg = async (image) => {
         try {
-            if (!isSignedIn) {
-                return openSignIn();
-            }
+            if (!isSignedIn) return openSignIn();
 
             setImage(image);
-            setResultImage(false);
+            setResultImage(null); // reset before loading
             navigate('/result');
 
             const token = await getToken();
             const formData = new FormData();
-            image && formData.append('image', image);
+            if (image) formData.append('image', image);
 
-            const { data } = await axios.post(backendUrl + "/api/image/remove-bg", formData, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const { data } = await axios.post(
+                `${backendUrl}/api/image/remove-bg`,
+                formData,
+                {
+                    headers: { Authorization: `Bearer ${token}` }
+                }
+            );
 
             if (data.success) {
                 setResultImage(data.resultimage);
-                if (typeof data.creditBalance === 'number') setCredit(data.creditBalance);
+                await loadCredits(); // always sync Navbar credits
             } else {
                 toast.error(data.message);
-                data.creditBalance && setCredit(data.creditBalance);
                 if (data.creditBalance === 0) {
                     navigate('/buy');
                 }
             }
         } catch (error) {
-            console.error("Error removing background:", error);
-            toast.error(error.message);
+            console.error('Error removing background:', error);
+            toast.error(error.response?.data?.message || error.message);
         }
     };
 
     const value = {
-        credit, setCredit,
+        credit,
+        setCredit,
         loadCredits,
         backendUrl,
-        image, setImage,
+        image,
+        setImage,
         remove_bg,
-        resultImage, setResultImage
+        resultImage,
+        setResultImage
     };
 
     return (

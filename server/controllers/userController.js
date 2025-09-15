@@ -57,12 +57,16 @@ const clerkwebhook = async (req, res) => {
 
 const userCredits = async (req, res) => {
     try {
-        const { clerkId } = req.body;
+        // Use clerkId from req.user (set by auth middleware)
+        const clerkId = req.user?.clerkId;
+        if (!clerkId) {
+            return res.status(401).json({ success: false, message: "Unauthorized: clerkId missing" });
+        }
         const userdata = await userModel.findOne({ clerkId });
         if (!userdata) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
-        res.json({ success: true, creditBalance: userdata.creditBalance });
+        res.json({ success: true, credits: userdata.creditBalance });
     } catch (error) {
         console.error("Error fetching user credits:", error);
         res.status(500).json({ success: false, message: "Internal Server Error" });
