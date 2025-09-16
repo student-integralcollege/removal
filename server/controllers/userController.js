@@ -1,5 +1,8 @@
 import { Webhook } from "svix"
 import userModel from "../models/userModel.js";
+import razorpay from "razorpay";
+import TransactionModel from "../models/transactionModel.js";
+
 
 const clerkwebhook = async (req, res) => {
 
@@ -73,4 +76,93 @@ const userCredits = async (req, res) => {
     }
 };
 
-export { clerkwebhook, userCredits };
+const razorpayInstance = new razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+});
+
+const paymentRazorpay = async (req, res) => {
+    try {
+        const { clerkId, planId } = req.body;
+        const userData = await userModel.findOne({ clerkId });
+
+        if (!userData || !planId) {
+            return res.status(404).json({ success: false, message: "Invalid credentials" });
+        }
+        let credits, plan, amount, date
+        switch (planId) {
+            case "Basic":
+                plan = "Basic Plan";
+                credits = 100;
+                amount = 10;
+                break;
+
+            case "Advanced":
+                plan = "Advanced Plan";
+                credits = 500;
+                amount = 50;
+                break;
+
+            case "Business":
+                plan = "Business Plan";
+                credits = 5000;
+                amount = 250;
+                break;
+
+            default:
+                return res.status(400).json({ success: false, message: "Invalid plan" });
+        }
+        date = new Date();
+
+        const transactionData = { clerkId, plan, credits, amount, date };
+
+        const newTransaction = await TransactionModel.create(transactionData);
+
+        const options = {
+            amount: amount * 100,
+            currency: process.env.CURRENCY || "INR",
+            receipt: String(newTransaction._id)
+        };
+
+        await razorpayInstance.orders.create(options)
+            .then((order) => {
+                res.json({ success: true, order });
+            })
+            .catch((error) => {
+                console.error("Error creating Razorpay order:", error);
+                res.status(500).json({ success: false, message: "Internal Server Error" });
+            });
+
+    } catch (error) {
+        console.error("Error creating Razorpay order:", error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+}
+
+const verifyRazorpayPayment = async (req, res) => {
+    try {
+        const { razorpay_order_id } = req.body;
+
+        const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id);
+
+        if (orderInfo.status === "paid") {
+            const transactionData = await TransactionModel.findById({ receipt: String(orderInfo.receipt) });
+            if (transactionData.payment) {
+                return res.json({ success: false, message: "Payment Failed" });
+            }
+
+            const userData = await userModel.findOne({ clerkId: transactionData.clerkId });
+            const creditBalance = userData.creditBalance + transactionData.credits;
+            await userModel.findByIdAndUpdate(userData._id, { creditBalance });
+
+            //make the payment successful
+            await TransactionModel.findByIdAndUpdate(transactionData._id, { payment: true });
+            return res.json({ success: true, message: "Credits Added" });
+        }
+    } catch (error) {
+        console.error("Error fetching Razorpay order:", error);
+        return res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+}
+
+export { clerkwebhook, userCredits, paymentRazorpay, verifyRazorpayPayment };

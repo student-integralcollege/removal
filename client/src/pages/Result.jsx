@@ -38,21 +38,21 @@ const Result = () => {
             <img
               className='rounded-md border w-full object-contain'
               src={objectUrl}
-              alt="Original"
+              alt=""
             />
           </div>
 
           {/* right side */}
           <div className='flex flex-col'>
             <p className='font-semibold text-gray-600 mb-2'>Background Removed</p>
-            <div className='rounded-md border border-gray-300 min-h-[260px] sm:min-h-[320px] relative bg-layer overflow-hidden'>
-              {resultImage && (
-                <img
-                  src={resultImage}
-                  alt="Result"
-                  className="w-full h-full object-contain"
-                />
-              )}
+            <div>
+
+              <img
+                src={resultImage}
+                alt=""
+                className="rounded-md border w-full object-contain"
+              />
+
               {!resultImage && image && (
                 <div className='absolute inset-0 flex items-center justify-center'>
                   <div className='border border-violet-600 rounded-full h-12 w-12 border-t-transparent animate-spin'></div>
