@@ -5,6 +5,7 @@ import { AppContext } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 
 const BuyCredits = () => {
 
@@ -38,10 +39,8 @@ const BuyCredits = () => {
         }
       }
     }
-
     const rzp = new window.Razorpay(options)
     rzp.open();
-
   }
 
   const paymentRazorpay = async (planId) => {
@@ -52,6 +51,7 @@ const BuyCredits = () => {
           'Authorization': `Bearer ${token}`
         }
       });
+      const { data } = response;
       if (data.success) {
         initPayment(data.order);
       }
