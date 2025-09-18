@@ -9,24 +9,8 @@ const PORT = process.env.PORT || 5000;
 const app = express();
 await mongoDB();
 
-
-const allowedOrigins = [
-  "http://localhost:5173",         // local dev
-  "https://removal-ivb9.vercel.app" // your deployed frontend
-];
-
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true
-}));
-
 app.use(express.json());
+app.use(cors());
 
 app.get('/', (req, res) => {
   res.send('API Working!');

@@ -8,7 +8,7 @@ const Navbar = () => {
 
   const { openSignIn } = useClerk();
   const { isSignedIn, user } = useUser();
-  const { credit, loadCredits, setCredit } = useContext(AppContext);
+  const { credit, loadCredits } = useContext(AppContext);
   const navigate = useNavigate();
 
   useEffect(() => {
