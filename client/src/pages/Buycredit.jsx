@@ -3,7 +3,7 @@ import { assets, plans } from '../assets/assets';
 import { useContext } from 'react';
 import { AppContext } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
-import useAuth from '@clerk/clerk-react';
+import { useAuth } from '@clerk/clerk-react';
 import { toast } from 'react-toastify';
 
 const BuyCredits = () => {
