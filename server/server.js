@@ -9,7 +9,10 @@ const PORT = process.env.PORT || 5000;
 const app = express();
 await mongoDB();
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://removal-ivb9.vercel.app', // your frontend domain
+  credentials: true, // if you use cookies or authentication
+}));
 app.use(express.json());
 
 app.get('/', (req, res) => {
