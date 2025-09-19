@@ -52,7 +52,7 @@ export const testimonialsData = [
 export const plans = [
     {
       id: 'Basic',
-      price: 1,
+      price: 10,
       credits: 100,
       desc: 'Best for personal use.'
     },
