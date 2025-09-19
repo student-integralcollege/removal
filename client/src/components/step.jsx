@@ -14,7 +14,7 @@ const Step = () => {
           <img className='max-w-9' src={assets.upload_icon} alt="" />
           <div>
             <p className="text-xl font-medium">Upload image</p>
-            <p className="text-sm text-neutral-500">This is a demo text. i will change it</p>
+            <p className="text-sm text-neutral-500">Choose an image from your device to upload and process.</p>
           </div>
         </div>
 
@@ -22,7 +22,7 @@ const Step = () => {
           <img className='max-w-9' src={assets.remove_bg_icon} alt="" />
           <div>
             <p className="text-xl font-medium">Remove background</p>
-            <p className="text-sm text-neutral-500">This is a demo text. i will change it</p>
+            <p className="text-sm text-neutral-500">Automatically remove the background from your image.</p>
           </div>
         </div>
 
@@ -30,7 +30,7 @@ const Step = () => {
           <img className='max-w-9' src={assets.download_icon} alt="" />
           <div>
             <p className="text-xl font-medium">Download image</p>
-            <p className="text-sm text-neutral-500">This is a demo text. i will change it</p>
+            <p className="text-sm text-neutral-500">Download the processed image to your device.</p>
           </div>
         </div>
         {/* end threeblocks */}

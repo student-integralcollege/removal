@@ -9,7 +9,7 @@ import axios from 'axios';
 
 const BuyCredits = () => {
 
-  const { backendUrl, loadCreditData } = useContext(AppContext);
+  const { backendUrl, loadCredits } = useContext(AppContext);
   const navigate = useNavigate();
   const getToken = useAuth();
 
@@ -29,7 +29,7 @@ const BuyCredits = () => {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (data.success) {
-            loadCreditData();
+            loadCredits();
             navigate('/');
             toast.success("Credit Added!");
           }

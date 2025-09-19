@@ -102,7 +102,7 @@ const paymentRazorpay = async (req, res) => {
       case "Basic":
         plan = "Basic Plan";
         credits = 100;
-        amount = 10;    // ✅ fix: use 10 (₹10) not 1000
+        amount = 1;    // ✅ fix: use 10 (₹10) not 1000
         break;
       case "Advanced":
         plan = "Advanced Plan";
@@ -143,9 +143,7 @@ const paymentRazorpay = async (req, res) => {
 
 const verifyRazorpayPayment = async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-
-    // 1. Verify signature (security fix)
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body.response; 
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
@@ -156,12 +154,11 @@ const verifyRazorpayPayment = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid signature" });
     }
 
-    // 2. Fetch order info
+    // 2. Fetch order info from Razorpay
     const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id);
 
-    // 3. Find transaction correctly
+    // 3. Find transaction from receipt
     const transactionData = await TransactionModel.findById(orderInfo.receipt);
-
     if (!transactionData) {
       return res.status(404).json({ success: false, message: "Transaction not found" });
     }
@@ -171,13 +168,17 @@ const verifyRazorpayPayment = async (req, res) => {
       return res.status(400).json({ success: false, message: "Payment already processed" });
     }
 
+    // 5. Update user credits safely
     const userData = await userModel.findOne({ clerkId: transactionData.clerkId });
-    userData.creditBalance += transactionData.credits;
+    if (!userData) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    userData.creditBalance = (userData.creditBalance || 0) + transactionData.credits;
     await userData.save();
-
     transactionData.payment = true;
+    transactionData.razorpay_payment_id = razorpay_payment_id;
     await transactionData.save();
-
     return res.json({ success: true, message: "Credits added successfully" });
   } catch (error) {
     console.error("Error verifying Razorpay payment:", error);
