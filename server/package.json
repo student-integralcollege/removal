@@ -11,6 +11,7 @@
     "dev": "nodemon server.js"
   },
   "dependencies": {
+    "@clerk/backend": "^3.4.14",
     "axios": "^1.10.0",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
