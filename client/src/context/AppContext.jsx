@@ -11,7 +11,10 @@ const AppContextProvider = ({ children }) => {
     const [image, setImage] = useState(null);
     const [resultImage, setResultImage] = useState(null);
 
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    const configuredBackendUrl = import.meta.env.VITE_BACKEND_URL || 'https://removal-sandy.vercel.app';
+    const backendUrl = configuredBackendUrl
+        .replace('https://removal-flax.vercel.app', 'https://removal-sandy.vercel.app')
+        .replace(/\/$/, '');
     const navigate = useNavigate();
 
     const { getToken } = useAuth();
