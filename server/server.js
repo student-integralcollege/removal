@@ -7,7 +7,8 @@ import imageRouter from './routes/imageRoutes.js';
 
 const PORT = process.env.PORT || 5000;
 const app = express();
-await mongoDB();
+// Connect to MongoDB asynchronously to prevent blocking serverless function initialization (cold starts)
+mongoDB().catch(err => console.error("MongoDB connection error:", err));
 
 app.use(express.json());
 app.use(cors());
@@ -19,6 +20,11 @@ app.get('/', (req, res) => {
 app.use('/api/user', userRouter);
 app.use('/api/image', imageRouter);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// Only listen to the port locally. Vercel will import the app and handle routing.
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
+
+export default app;
