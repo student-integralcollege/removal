@@ -77,10 +77,19 @@ const userCredits = async (req, res) => {
   }
 };
 
-const razorpayInstance = new razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET
-});
+let razorpayInstance = null;
+const getRazorpayInstance = () => {
+  if (!razorpayInstance) {
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+      throw new Error("Razorpay key_id or key_secret is missing from environment variables");
+    }
+    razorpayInstance = new razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET
+    });
+  }
+  return razorpayInstance;
+};
 
 // paymentRazorpay
 const paymentRazorpay = async (req, res) => {
@@ -132,7 +141,8 @@ const paymentRazorpay = async (req, res) => {
       receipt: String(newTransaction._id),
     };
 
-    const order = await razorpayInstance.orders.create(options);
+    const instance = getRazorpayInstance();
+    const order = await instance.orders.create(options);
     res.json({ success: true, order });
   } catch (error) {
     console.error("Error creating Razorpay order:", error);
@@ -155,7 +165,8 @@ const verifyRazorpayPayment = async (req, res) => {
     }
 
     // 2. Fetch order info from Razorpay
-    const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id);
+    const instance = getRazorpayInstance();
+    const orderInfo = await instance.orders.fetch(razorpay_order_id);
 
     // 3. Find transaction from receipt
     const transactionData = await TransactionModel.findById(orderInfo.receipt);

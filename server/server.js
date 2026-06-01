@@ -10,8 +10,15 @@ const app = express();
 // Connect to MongoDB asynchronously to prevent blocking serverless function initialization (cold starts)
 mongoDB().catch(err => console.error("MongoDB connection error:", err));
 
+const corsOptions = {
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 app.use(express.json());
-app.use(cors());
 
 app.get('/', (req, res) => {
   res.send('API Working!');
