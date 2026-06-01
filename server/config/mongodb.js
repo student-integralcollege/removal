@@ -1,12 +1,29 @@
 import mongoose from "mongoose";
 
+let connectionPromise;
+
 const mongodb = async () => {
+    if (mongoose.connection.readyState === 1) {
+        return mongoose.connection;
+    }
 
-    mongoose.connection.on("connected", () => {
-        console.log("MongoDB connected");
-    });
+    if (!process.env.MONGODB_URI) {
+        throw new Error("MONGODB_URI is missing from environment variables");
+    }
 
-    await mongoose.connect(process.env.MONGODB_URI);
+    if (!connectionPromise) {
+        mongoose.connection.once("connected", () => {
+            console.log("MongoDB connected");
+        });
+
+        connectionPromise = mongoose.connect(process.env.MONGODB_URI).catch((error) => {
+            connectionPromise = null;
+            throw error;
+        });
+    }
+
+    await connectionPromise;
+    return mongoose.connection;
 }
 
 export default mongodb;

@@ -7,8 +7,6 @@ import imageRouter from './routes/imageRoutes.js';
 
 const PORT = process.env.PORT || 5000;
 const app = express();
-// Connect to MongoDB asynchronously to prevent blocking serverless function initialization (cold starts)
-mongoDB().catch(err => console.error("MongoDB connection error:", err));
 
 const corsOptions = {
   origin: '*',
@@ -24,6 +22,20 @@ app.get('/', (req, res) => {
   res.send('API Working!');
 });
 
+const ensureDatabase = async (req, res, next) => {
+  try {
+    await mongoDB();
+    next();
+  } catch (error) {
+    console.error("MongoDB connection error:", error);
+    res.status(503).json({
+      success: false,
+      message: "Database connection failed"
+    });
+  }
+};
+
+app.use('/api', ensureDatabase);
 app.use('/api/user', userRouter);
 app.use('/api/image', imageRouter);
 
