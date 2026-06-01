@@ -34,18 +34,28 @@ const removeBackground = async (req, res) => {
         const base64Image = Buffer.from(data, 'binary').toString('base64');
         const resultimage = `data:${req.file.mimetype};base64,${base64Image}`;
 
-        await userModel.findOneAndUpdate({ clerkId }, { creditBalance: user.creditBalance - 1 });
+        const updatedUser = await userModel.findOneAndUpdate(
+            { clerkId },
+            { $inc: { creditBalance: -1 } },
+            { new: true }
+        );
 
         res.json({
             success: true,
             resultimage,
-            creditBalance: user.creditBalance - 1,
+            creditBalance: updatedUser.creditBalance,
             message: "Background removed successfully",
         });
 
     } catch (error) {
         console.error("Error removing background:", error);
         res.status(500).json({ success: false, message: "Internal Server Error" });
+    } finally {
+        if (req.file && req.file.path) {
+            fs.unlink(req.file.path, (err) => {
+                if (err) console.error("Error deleting temp file:", err);
+            });
+        }
     }
 };
 
