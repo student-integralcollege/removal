@@ -6,62 +6,62 @@ import crypto from "crypto";
 
 const clerkwebhook = async (req, res) => {
 
-    try {
-        const webhook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
-        await webhook.verify(JSON.stringify(req.body), {
-            "svix-id": req.headers["svix-id"],
-            "svix-timestamp": req.headers["svix-timestamp"],
-            "svix-signature": req.headers["svix-signature"]
-        });
-        const { data, type } = req.body;
-        switch (type) {
-            case "user.created": {
-                const userData = {
-                    clerkId: data.id,
-                    email: data.email_addresses?.[0]?.email_address,
-                    firstName: data.first_name,
-                    lastName: data.last_name,
-                    photo: data.image_url
-                };
-                await userModel.create(userData);
-                res.json({ message: "User created successfully" });
-                break;
-            }
+  try {
+    const webhook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
+    await webhook.verify(JSON.stringify(req.body), {
+      "svix-id": req.headers["svix-id"],
+      "svix-timestamp": req.headers["svix-timestamp"],
+      "svix-signature": req.headers["svix-signature"]
+    });
+    const { data, type } = req.body;
+    switch (type) {
+      case "user.created": {
+        const userData = {
+          clerkId: data.id,
+          email: data.email_addresses?.[0]?.email_address,
+          firstName: data.first_name,
+          lastName: data.last_name,
+          photo: data.image_url
+        };
+        await userModel.create(userData);
+        res.json({ message: "User created successfully" });
+        break;
+      }
 
-            case "user.updated": {
-                const userUpdated = {
-                    email: data.email_addresses?.[0]?.email_address,
-                    firstName: data.first_name,
-                    lastName: data.last_name,
-                    photo: data.image_url
-                };
-                await userModel.findOneAndUpdate({ clerkId: data.id }, userUpdated);
-                res.json({ message: "User updated successfully" });
-                break;
-            }
+      case "user.updated": {
+        const userUpdated = {
+          email: data.email_addresses?.[0]?.email_address,
+          firstName: data.first_name,
+          lastName: data.last_name,
+          photo: data.image_url
+        };
+        await userModel.findOneAndUpdate({ clerkId: data.id }, userUpdated);
+        res.json({ message: "User updated successfully" });
+        break;
+      }
 
-            case "user.deleted": {
-                await userModel.findOneAndDelete({ clerkId: data.id });
-                res.json({ message: "User deleted successfully" });
-                break;
-            }
-            default:
-                console.log("Unhandled webhook type:", type);
-                res.json({ message: "Webhook received but not handled" });
-                break;
-        }
+      case "user.deleted": {
+        await userModel.findOneAndDelete({ clerkId: data.id });
+        res.json({ message: "User deleted successfully" });
+        break;
+      }
+      default:
+        console.log("Unhandled webhook type:", type);
+        res.json({ message: "Webhook received but not handled" });
+        break;
     }
-    catch (error) {
-        console.error("Error processing webhook:", error);
-        res.status(500).json({ error: "Internal Server Error", details: error.message });
-        return;
-    }
+  }
+  catch (error) {
+    console.error("Error processing webhook:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error.message });
+    return;
+  }
 }
 
 // userCredits
 const userCredits = async (req, res) => {
   try {
-    const clerkId = req.user?.clerkId;   // ✅ fix: use req.user?.clerkId
+    const clerkId = req.user?.clerkId;
     if (!clerkId) {
       return res.status(401).json({ success: false, message: "Unauthorized: clerkId missing" });
     }
@@ -95,7 +95,7 @@ const getRazorpayInstance = () => {
 const paymentRazorpay = async (req, res) => {
   try {
     const { planId } = req.body;
-    const clerkId = req.user?.clerkId;   // ✅ fix
+    const clerkId = req.user?.clerkId;
 
     if (!clerkId || !planId) {
       return res.status(400).json({ success: false, message: "Missing clerkId or planId" });
@@ -111,7 +111,7 @@ const paymentRazorpay = async (req, res) => {
       case "Basic":
         plan = "Basic Plan";
         credits = 100;
-        amount = 10;    
+        amount = 10;
         break;
       case "Advanced":
         plan = "Advanced Plan";
@@ -136,13 +136,16 @@ const paymentRazorpay = async (req, res) => {
     });
 
     const options = {
-      amount: amount * 100,   // ✅ Razorpay expects paise
+      amount: amount * 100,
       currency: process.env.CURRENCY || "INR",
       receipt: String(newTransaction._id),
     };
 
     const instance = getRazorpayInstance();
     const order = await instance.orders.create(options);
+
+    console.log("Razorpay Key:", process.env.RAZORPAY_KEY_ID);
+    console.log("Order:", order);
     res.json({ success: true, order });
   } catch (error) {
     console.error("Error creating Razorpay order:", error);
@@ -153,7 +156,7 @@ const paymentRazorpay = async (req, res) => {
 
 const verifyRazorpayPayment = async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body.response; 
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body.response;
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
